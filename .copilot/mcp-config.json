@@ -1,0 +1,115 @@
+{
+	"$schema": "https://raw.githubusercontent.com/modelcontextprotocol/specification/main/schema/mcp-config-schema.json",
+	"mcpServers": {
+		"github": {
+			"command": "npx",
+			"args": ["-y", "@modelcontextprotocol/server-github"],
+			"env": {
+				"GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
+			},
+			"description": "GitHub integration for repository management, issues, and pull requests"
+		},
+		"filesystem": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-filesystem",
+				"/Users/tin.phamv/work/personal/1-ohana-lens"
+			],
+			"description": "Local filesystem access for project files"
+		},
+		"sqlite": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@modelcontextprotocol/server-sqlite",
+				"--db-path",
+				"./dev.db"
+			],
+			"description": "SQLite database access for development database"
+		}
+	},
+	"projectContext": {
+		"name": "1-ohana-lens",
+		"type": "next-js",
+		"description": "Media management application for run club photo and video sharing",
+		"techStack": {
+			"frontend": [
+				"Next.js 14+",
+				"TypeScript",
+				"Material-UI",
+				"Zustand",
+				"React Query",
+				"React Dropzone",
+				"yet-another-react-lightbox",
+				"react-player"
+			],
+			"backend": [
+				"Next.js API Routes",
+				"Prisma ORM",
+				"Cloudinary REST API",
+				"JWT + bcrypt"
+			],
+			"database": ["SQLite (development)", "Turso SQLite (production)"],
+			"hosting": ["Vercel", "Cloudinary (storage)"]
+		},
+		"keyFeatures": [
+			"Dual authentication system (admin + member)",
+			"Folder-based media organization",
+			"Cloudinary integration for storage",
+			"Storage monitoring and cleanup",
+			"Responsive gallery with lightbox",
+			"Video player support",
+			"Swagger API documentation"
+		],
+		"documentation": [
+			"PROPOSAL.md",
+			"CONVERSATION_SUMMARY.md",
+			"PROGRESS.md",
+			".github/copilot-instructions.md"
+		]
+	},
+	"preferences": {
+		"codeStyle": {
+			"typescript": {
+				"strict": true,
+				"preferInterface": true,
+				"explicitReturnTypes": true
+			},
+			"react": {
+				"functional": true,
+				"hooks": true,
+				"namedExports": true
+			},
+			"naming": {
+				"components": "PascalCase",
+				"files": "camelCase",
+				"types": "PascalCase"
+			}
+		},
+		"apiDesign": {
+			"responseFormat": "{ data, ok }",
+			"errorFormat": "{ error, code, ok }",
+			"authentication": "JWT Bearer token",
+			"documentation": "Swagger/OpenAPI 3.0"
+		}
+	},
+	"integrations": {
+		"cloudinary": {
+			"enabled": true,
+			"purpose": "Media storage and CDN",
+			"authentication": "API Key + Secret",
+			"organization": "ohana-lens/{folderId}/"
+		},
+		"turso": {
+			"enabled": true,
+			"purpose": "Production SQLite database",
+			"authentication": "Connection string with token"
+		},
+		"vercel": {
+			"enabled": true,
+			"purpose": "Frontend and API hosting",
+			"authentication": "CLI + OAuth"
+		}
+	}
+}
