@@ -1,11 +1,5 @@
 import type { Metadata } from "next";
-import { getBaseUrl } from "@/lib/utils";
-
-interface FolderMetadata {
-	id: string;
-	name: string;
-	description?: string;
-}
+import { prisma } from "@/lib/db";
 
 export async function generateMetadata({
 	params,
@@ -13,19 +7,27 @@ export async function generateMetadata({
 	params: { folderId: string };
 }): Promise<Metadata> {
 	try {
-		const baseUrl = getBaseUrl();
-		const response = await fetch(
-			`${baseUrl}/api/folders/${params.folderId}/metadata`,
-			{
-				next: { revalidate: 3600 }, // Revalidate every hour
+		// Query database directly to avoid HTTP fetch issues in production
+		const folder = await prisma.folder.findUnique({
+			where: { id: params.folderId },
+			select: {
+				id: true,
+				name: true,
+				description: true,
 			},
-		);
+		});
 
-		if (!response.ok) {
-			throw new Error("Failed to fetch folder metadata");
+		if (!folder) {
+			console.warn(`[Metadata] Folder not found: ${params.folderId}`);
+			return {
+				title: "Folder Not Found - 1 Ohana Lens",
+				description: "The requested folder could not be found",
+				robots: {
+					index: false,
+					follow: false,
+				},
+			};
 		}
-
-		const folder: FolderMetadata = await response.json();
 
 		const title = `Manage ${folder.name} - 1 Ohana Lens`;
 		const description = folder.description
@@ -42,7 +44,7 @@ export async function generateMetadata({
 		};
 	} catch (error) {
 		console.error("[Metadata] Error fetching folder metadata:", error);
-		// Return default metadata if fetch fails
+		// Return default metadata if database query fails
 		return {
 			title: "Folder Management - 1 Ohana Lens",
 			description: "Admin panel for managing folder media",

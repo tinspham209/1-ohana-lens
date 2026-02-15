@@ -40,3 +40,5 @@ dev.db
 dev.db-journal
 
 /app/generated/prisma
+
+/scripts/generate-hash.mjs

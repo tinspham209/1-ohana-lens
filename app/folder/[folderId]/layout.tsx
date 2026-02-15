@@ -1,11 +1,5 @@
 import type { Metadata } from "next";
-import { getBaseUrl } from "@/lib/utils";
-
-interface FolderMetadata {
-	id: string;
-	name: string;
-	description?: string;
-}
+import { prisma } from "@/lib/db";
 
 export async function generateMetadata({
 	params,
@@ -13,24 +7,33 @@ export async function generateMetadata({
 	params: { folderId: string };
 }): Promise<Metadata> {
 	try {
-		const baseUrl = getBaseUrl();
-		const response = await fetch(
-			`${baseUrl}/api/folders/${params.folderId}/metadata`,
-			{
-				next: { revalidate: 3600 }, // Revalidate every hour
+		// Query database directly to avoid HTTP fetch issues in production
+		const folder = await prisma.folder.findUnique({
+			where: { id: params.folderId },
+			select: {
+				id: true,
+				name: true,
+				description: true,
 			},
-		);
+		});
 
-		if (!response.ok) {
-			throw new Error("Failed to fetch folder metadata");
+		if (!folder) {
+			console.warn(`[Metadata] Folder not found: ${params.folderId}`);
+			return {
+				title: "Folder Not Found - 1 Ohana Lens",
+				description: "The requested folder could not be found",
+			};
 		}
-
-		const folder: FolderMetadata = await response.json();
 
 		const title = `${folder.name} - 1 Ohana Lens`;
 		const description = folder.description
 			? `Explore the media of ${folder.name} - ${folder.description}`
 			: `Explore the media from ${folder.name}`;
+
+		const baseUrl =
+			process.env.NEXT_PUBLIC_URL || process.env.VERCEL_URL
+				? `https://${process.env.VERCEL_URL}`
+				: "http://localhost:3000";
 
 		return {
 			title,
@@ -38,7 +41,7 @@ export async function generateMetadata({
 			openGraph: {
 				title,
 				description,
-				url: `${process.env.NEXT_PUBLIC_URL}/folder/${params.folderId}`,
+				url: `${baseUrl}/folder/${params.folderId}`,
 				type: "website",
 				images: [
 					{
@@ -56,12 +59,12 @@ export async function generateMetadata({
 				images: ["/opengraph-image.webp"],
 			},
 			alternates: {
-				canonical: `${process.env.NEXT_PUBLIC_URL}/folder/${params.folderId}`,
+				canonical: `${baseUrl}/folder/${params.folderId}`,
 			},
 		};
 	} catch (error) {
 		console.error("[Metadata] Error fetching folder metadata:", error);
-		// Return default metadata if fetch fails
+		// Return default metadata if database query fails
 		return {
 			title: "Run Club Media - 1 Ohana Lens",
 			description: "Access shared media from the run club",
