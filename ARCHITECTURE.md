@@ -276,7 +276,9 @@ User enters credentials
   Redirect to dashboard
 ```
 
-### 2. File Upload Flow
+### 2. File Upload Flow (Direct Upload)
+
+**Architecture:** Client-side direct upload to Cloudinary to bypass Vercel's 4.5MB payload limit.
 
 ```
 Admin selects files
@@ -289,14 +291,8 @@ Admin selects files
            │
            ▼
   ┌──────────────────┐
-  │ Create FormData  │
-  │ with files       │
-  └────────┬─────────┘
-           │
-           ▼
-  ┌──────────────────┐
   │ POST /api/media/ │
-  │ upload/[folderId]│
+  │ upload-signature │ ← Get upload credentials
   └────────┬─────────┘
            │
            ▼
@@ -306,20 +302,28 @@ Admin selects files
            │
            ▼
   ┌──────────────────┐
-  │ Validate files   │
-  │ (type, size)     │
+  │ Generate signed  │
+  │ upload params    │ ← Signature, timestamp, folder
   └────────┬─────────┘
            │
            ▼
   ┌──────────────────┐
-  │ Upload to        │
-  │ Cloudinary API   │
+  │ Direct upload to │
+  │ Cloudinary API   │ ← Files bypass API route
+  │ (from browser)   │
   └────────┬─────────┘
            │
            ▼
   ┌──────────────────┐
   │ Get URL &        │
-  │ public_id        │
+  │ public_id from   │
+  │ Cloudinary       │
+  └────────┬─────────┘
+           │
+           ▼
+  ┌──────────────────┐
+  │ POST /api/media/ │
+  │ save             │ ← Save metadata only
   └────────┬─────────┘
            │
            ▼
@@ -340,6 +344,12 @@ Admin selects files
          ▼
   Display in gallery
 ```
+
+**Benefits:**
+- ✅ Supports files up to 100MB (Cloudinary limit)
+- ✅ Bypasses Vercel's 4.5MB serverless function payload limit
+- ✅ Faster uploads (direct to CDN)
+- ✅ Reduced serverless function execution time
 
 ### 3. Folder Access Flow (Member)
 
@@ -704,7 +714,7 @@ export async function uploadToCloudinary(
 ): Promise<{ url: string; public_id: string }> {
   const uploadStream = cloudinary.uploader.upload_stream(
     {
-      folder: `ohana-lens/folder-${folderId}`,
+      folder: `${process.env.CLOUDINARY_FOLDER_NAME}/folder-${folderId}`,
       resource_type: "auto", // Auto-detect image/video
       quality: "auto:eco", // Optimize for bandwidth
       fetch_format: "auto", // Serve best format (WebP, AVIF)

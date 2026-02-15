@@ -204,7 +204,8 @@ export async function DELETE(
 
 		// Delete from Cloudinary
 		try {
-			const cloudinaryPath = `ohana-lens/folder-${params.folderId}`;
+			const folderName = process.env.CLOUDINARY_FOLDER_NAME || "ohana-lens";
+			const cloudinaryPath = `${folderName}/folder-${params.folderId}`;
 			await deleteCloudinaryFolder(cloudinaryPath);
 		} catch (cloudinaryError) {
 			console.error("[API] Cloudinary delete error:", cloudinaryError);

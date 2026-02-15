@@ -9,6 +9,10 @@ import {
 } from "@/lib/imageCompression";
 
 // Configure API route to handle large file uploads (up to 100MB)
+// NOTE: This route is kept for backward compatibility and edge cases.
+// Primary upload method uses direct client-side upload to Cloudinary
+// via /api/media/upload-signature + /api/media/save to bypass Vercel's
+// 4.5MB serverless function payload limit.
 export const runtime = "nodejs";
 export const maxDuration = 60; // 60 seconds timeout for uploads
 
@@ -16,9 +20,10 @@ export const maxDuration = 60; // 60 seconds timeout for uploads
  * @swagger
  * /api/media/upload/{folderId}:
  *   post:
- *     summary: Upload media files
- *     description: Upload images or videos to a folder (admin only)
+ *     summary: Upload media files (Legacy - for small files only)
+ *     description: Upload images or videos to a folder (admin only). Limited to 4.5MB due to Vercel payload limits. Use direct upload for larger files.
  *     tags: [Media]
+ *     deprecated: false
  *     security:
  *       - BearerAuth: []
  *     parameters:

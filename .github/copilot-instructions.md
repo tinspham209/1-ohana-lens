@@ -98,7 +98,7 @@ export async function POST(request: Request) {
 
 ### Cloudinary Integration
 
-- Organize files by folder: `ohana-lens/folder-{id}/file-name`
+- Organize files by folder: `${CLOUDINARY_FOLDER_NAME}/folder-{id}/file-name`
 - Store both `cloudinary_url` and `cloudinary_public_id` in database
 - Always delete from Cloudinary when deleting from database
 - Use REST API for uploads and deletions

@@ -113,28 +113,102 @@ export default function FileUploadZone({
 			}
 
 			try {
-				const formData = new FormData();
-
-				acceptedFiles.forEach((file) => {
-					formData.append("files", file);
-				});
-
-				const response = await fetch(`/api/media/upload/${folderId}`, {
+				// Get upload signature from API
+				const signatureResponse = await fetch("/api/media/upload-signature", {
 					method: "POST",
 					headers: {
+						"Content-Type": "application/json",
 						Authorization: `Bearer ${token}`,
 					},
-					body: formData,
+					body: JSON.stringify({ folderId }),
 				});
 
-				const data = await response.json();
-
-				if (!response.ok) {
-					throw new Error(data.error || "Upload failed");
+				if (!signatureResponse.ok) {
+					throw new Error("Failed to get upload signature");
 				}
 
-				setResults(data.results);
-				setProgress(100);
+				const { signature, timestamp, cloudName, apiKey, folder } =
+					await signatureResponse.json();
+
+				const uploadResults: FileUploadResult[] = [];
+				let completed = 0;
+
+				// Upload files directly to Cloudinary
+				for (const file of acceptedFiles) {
+					try {
+						const mediaType = file.type.startsWith("image/")
+							? "image"
+							: "video";
+
+						// Upload to Cloudinary
+						const formData = new FormData();
+						formData.append("file", file);
+						formData.append("signature", signature);
+						formData.append("timestamp", timestamp.toString());
+						formData.append("api_key", apiKey);
+						formData.append("folder", folder);
+
+						const uploadResponse = await fetch(
+							`https://api.cloudinary.com/v1_1/${cloudName}/${mediaType}/upload`,
+							{
+								method: "POST",
+								body: formData,
+							},
+						);
+
+						if (!uploadResponse.ok) {
+							const errorData = await uploadResponse.json();
+							throw new Error(
+								errorData.error?.message || "Cloudinary upload failed",
+							);
+						}
+
+						const cloudinaryData = await uploadResponse.json();
+
+						// Save metadata to database
+						const saveResponse = await fetch("/api/media/save", {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+								Authorization: `Bearer ${token}`,
+							},
+							body: JSON.stringify({
+								folderId,
+								fileName: file.name,
+								cloudinaryUrl: cloudinaryData.secure_url,
+								cloudinaryPublicId: cloudinaryData.public_id,
+								mediaType,
+								fileSize: cloudinaryData.bytes,
+								mimeType: file.type,
+							}),
+						});
+
+						if (!saveResponse.ok) {
+							throw new Error("Failed to save media metadata");
+						}
+
+						const saveData = await saveResponse.json();
+
+						uploadResults.push({
+							fileName: file.name,
+							success: true,
+							media: saveData.media,
+						});
+					} catch (err: any) {
+						console.error(`Upload error for ${file.name}:`, err);
+						uploadResults.push({
+							fileName: file.name,
+							success: false,
+							error: err.message || "Upload failed",
+							code: "UPLOAD_ERROR",
+						});
+					}
+
+					completed++;
+					setProgress((completed / acceptedFiles.length) * 100);
+				}
+
+				setResults(uploadResults);
 
 				// Call callback after successful upload
 				setTimeout(() => {
@@ -150,23 +224,26 @@ export default function FileUploadZone({
 		[folderId, onUploadComplete],
 	);
 
-	const onDropRejected = useCallback((fileRejections: any[]) => {
-		const rejectionReasons = fileRejections.map((rejection) => {
-			const errors = rejection.errors.map((e: any) => {
-				if (e.code === "file-too-large") {
-					return `${rejection.file.name}: File too large (max ${limits?.videoMaxSizeMB || 100}MB)`;
-				}
-				if (e.code === "file-invalid-type") {
-					return `${rejection.file.name}: Invalid file type`;
-				}
-				return `${rejection.file.name}: ${e.message}`;
+	const onDropRejected = useCallback(
+		(fileRejections: any[]) => {
+			const rejectionReasons = fileRejections.map((rejection) => {
+				const errors = rejection.errors.map((e: any) => {
+					if (e.code === "file-too-large") {
+						return `${rejection.file.name}: File too large (max ${limits?.videoMaxSizeMB || 100}MB)`;
+					}
+					if (e.code === "file-invalid-type") {
+						return `${rejection.file.name}: Invalid file type`;
+					}
+					return `${rejection.file.name}: ${e.message}`;
+				});
+				return errors.join(", ");
 			});
-			return errors.join(", ");
-		});
-		
-		setError(rejectionReasons.join("; "));
-		console.error("Files rejected:", rejectionReasons);
-	}, [limits]);
+
+			setError(rejectionReasons.join("; "));
+			console.error("Files rejected:", rejectionReasons);
+		},
+		[limits],
+	);
 
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		onDrop,

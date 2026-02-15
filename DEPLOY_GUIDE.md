@@ -719,6 +719,24 @@ DATABASE_URL="libsql://..." pnpm exec prisma db seed
 3. Redeploy (Vercel will use new variables)
 ```
 
+**Error: "Request Entity Too Large" or "FUNCTION_PAYLOAD_TOO_LARGE"**
+
+```bash
+# This error occurs when trying to upload large files through API routes
+# Vercel serverless functions have a 4.5MB body size limit
+
+# ✅ FIXED: Application uses direct client-side upload to Cloudinary
+# - Files go directly from browser to Cloudinary
+# - Bypasses API route payload limits
+# - Supports files up to 100MB (Cloudinary limit)
+
+# If you still see this error:
+1. Clear browser cache and hard refresh (Cmd+Shift+R)
+2. Verify you're using the latest deployed version
+3. Check browser console for errors
+4. Ensure NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME is set in Vercel
+```
+
 **Error: "File size exceeds limit"**
 
 ```bash
