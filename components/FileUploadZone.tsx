@@ -150,13 +150,32 @@ export default function FileUploadZone({
 		[folderId, onUploadComplete],
 	);
 
+	const onDropRejected = useCallback((fileRejections: any[]) => {
+		const rejectionReasons = fileRejections.map((rejection) => {
+			const errors = rejection.errors.map((e: any) => {
+				if (e.code === "file-too-large") {
+					return `${rejection.file.name}: File too large (max ${limits?.videoMaxSizeMB || 100}MB)`;
+				}
+				if (e.code === "file-invalid-type") {
+					return `${rejection.file.name}: Invalid file type`;
+				}
+				return `${rejection.file.name}: ${e.message}`;
+			});
+			return errors.join(", ");
+		});
+		
+		setError(rejectionReasons.join("; "));
+		console.error("Files rejected:", rejectionReasons);
+	}, [limits]);
+
 	const { getRootProps, getInputProps, isDragActive } = useDropzone({
 		onDrop,
+		onDropRejected,
 		accept: {
 			"image/*": [".jpg", ".jpeg", ".png", ".gif"],
 			"video/*": [".mp4", ".mov", ".webm"],
 		},
-		maxSize: limits ? limits.imageMaxSizeMB * 1024 * 1024 : 100 * 1024 * 1024,
+		maxSize: limits ? limits.videoMaxSizeMB * 1024 * 1024 : 100 * 1024 * 1024, // Use video limit (100MB) as max
 		disabled: uploading || loadingLimits,
 	});
 

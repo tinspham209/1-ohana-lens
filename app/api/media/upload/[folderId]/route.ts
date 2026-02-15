@@ -8,6 +8,10 @@ import {
 	getTargetCompressionSize,
 } from "@/lib/imageCompression";
 
+// Configure API route to handle large file uploads (up to 100MB)
+export const runtime = "nodejs";
+export const maxDuration = 60; // 60 seconds timeout for uploads
+
 /**
  * @swagger
  * /api/media/upload/{folderId}:
