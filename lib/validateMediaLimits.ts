@@ -87,10 +87,11 @@ async function getImageDimensions(
 			while (i < Math.min(buffer.length, 100000)) {
 				if (
 					buffer[i] === 0xff &&
-					(buffer[i + 1] === 0xc0 || buffer[i + 1] === 0xc1)
+					(buffer[i + 1] === 0xc0 || buffer[i + 1] === 0xc1) &&
+					i + 8 < buffer.length
 				) {
-					const height = (buffer[i + 5] << 8) | buffer[i + 6];
-					const width = (buffer[i + 7] << 8) | buffer[i + 8];
+					const height = (buffer[i + 5]! << 8) | buffer[i + 6]!;
+					const width = (buffer[i + 7]! << 8) | buffer[i + 8]!;
 					return { width, height };
 				}
 				i++;
