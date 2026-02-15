@@ -1,0 +1,57 @@
+{
+	"name": "1-ohana-lens",
+	"version": "0.1.0",
+	"private": true,
+	"engines": {
+		"node": ">=20.0.0",
+		"pnpm": ">=10.0.0"
+	},
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"dependencies": {
+		"@emotion/react": "^11.14.0",
+		"@emotion/styled": "^11.14.1",
+		"@hookform/resolvers": "^5.2.2",
+		"@libsql/client": "^0.17.0",
+		"@mui/icons-material": "^7.3.8",
+		"@mui/material": "^7.3.8",
+		"@prisma/adapter-libsql": "^7.4.0",
+		"@prisma/client": "^7.4.0",
+		"@tanstack/react-query": "^5.90.21",
+		"bcryptjs": "^3.0.3",
+		"cloudinary": "^2.9.0",
+		"date-fns": "^4.1.0",
+		"jsonwebtoken": "^9.0.3",
+		"next": "^14.2.0",
+		"next-swagger-doc": "^0.4.1",
+		"react": "^18.3.0",
+		"react-dom": "^18.3.0",
+		"react-dropzone": "^15.0.0",
+		"react-hook-form": "^7.71.1",
+		"sharp": "^0.33.0",
+		"swagger-jsdoc": "^6.2.8",
+		"swagger-ui-react": "^5.31.0",
+		"yet-another-react-lightbox": "^3.29.1",
+		"yup": "^1.7.1",
+		"zustand": "^5.0.11"
+	},
+	"devDependencies": {
+		"@types/bcryptjs": "^2.4.6",
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/node": "^20.0.0",
+		"@types/react": "^18.3.0",
+		"@types/react-dom": "^18.3.0",
+		"@types/swagger-jsdoc": "^6.0.4",
+		"@types/swagger-ui-react": "^5.18.0",
+		"dotenv": "^17.3.1",
+		"eslint": "^8.0.0",
+		"eslint-config-next": "^14.2.0",
+		"prisma": "^7.4.0",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.0.0"
+	}
+}

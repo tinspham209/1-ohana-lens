@@ -1,0 +1,96 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Admin Users Table (3 admin credentials)
+model AdminUser {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  email        String   @unique
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  lastLogin    DateTime? @map("last_login")
+  isActive     Boolean  @default(true) @map("is_active")
+  
+  sessions     Session[]
+  accessLogs   AccessLog[]
+  
+  @@map("admin_users")
+}
+
+// Folders Table
+model Folder {
+  id           String   @id @default(uuid())
+  name         String
+  description  String?
+  folderKey    String   @unique @map("folder_key")
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  sizeInBytes  BigInt   @default(0) @map("size_in_bytes")
+  
+  media        Media[]
+  accessLogs   AccessLog[]
+  
+  @@map("folders")
+}
+
+// Media Table
+model Media {
+  id                 String   @id @default(uuid())
+  folderId           String   @map("folder_id")
+  fileName           String   @map("file_name")
+  cloudinaryUrl      String   @map("cloudinary_url")
+  cloudinaryPublicId String   @map("cloudinary_public_id")
+  mediaType          String   @map("media_type") // 'image' | 'video'
+  fileSize           BigInt   @map("file_size")
+  mimeType           String   @map("mime_type")
+  uploadedAt         DateTime @default(now()) @map("uploaded_at")
+  
+  folder             Folder   @relation(fields: [folderId], references: [id], onDelete: Cascade)
+  
+  @@index([folderId])
+  @@map("media")
+}
+
+// Sessions Table (For JWT tracking and multi-admin support)
+model Session {
+  id        String   @id @default(uuid())
+  adminId   String   @map("admin_id")
+  tokenHash String   @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  
+  admin     AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  
+  @@index([adminId])
+  @@map("sessions")
+}
+
+// Access Logs (For analytics and audit trail)
+model AccessLog {
+  id         String   @id @default(uuid())
+  adminId    String?  @map("admin_id")
+  folderId   String?  @map("folder_id")
+  action     String
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+  
+  admin      AdminUser? @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  folder     Folder?    @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  
+  @@index([adminId])
+  @@index([folderId])
+  @@map("access_logs")
+}
+

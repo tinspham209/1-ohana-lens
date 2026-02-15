@@ -14,7 +14,7 @@
 - **Data Fetching:** React Query v5+ (TanStack Query)
 - **File Upload:** React Dropzone
 - **Image Lightbox:** yet-another-react-lightbox
-- **Video Player:** react-player
+- **Video Player:** Native HTML5 video element
 - **Styling:** MUI sx prop + CSS modules
 
 ### Backend
