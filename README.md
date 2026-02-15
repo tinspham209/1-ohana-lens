@@ -17,7 +17,9 @@
 ### Key Features
 
 - 🔐 **Dual Authentication** - Separate admin and member access with JWT tokens
-- 📁 **Folder Management** - Create, organize, and delete event folders
+- � **User Management** - Create, manage, and delete admin accounts
+- 📋 **Access Logs** - Track all admin and member activities with detailed audit trail
+- �📁 **Folder Management** - Create, organize, and delete event folders
 - 📤 **Batch Upload** - Drag-and-drop multiple images and videos
 - 🖼️ **Gallery View** - Responsive grid with lightbox preview
 - 🎥 **Video Support** - In-browser playback with controls
@@ -113,11 +115,13 @@ Password: admin123
 ### For Admins
 
 1. **Login**: Visit `/admin/login` with admin credentials
-2. **Create Folder**: Go to admin dashboard → Create new folder
-3. **Upload Media**: Select folder → Upload photos/videos via drag-and-drop
-4. **Share Access**: Copy folder link and password, share with members
-5. **Monitor Storage**: Check dashboard for storage usage warnings
-6. **Cleanup**: Delete old folders every 3 weeks to free storage
+2. **Manage Users**: Create or delete admin accounts from user management page
+3. **View Access Logs**: Monitor all system activities and access attempts
+4. **Create Folder**: Go to admin dashboard → Create new folder
+5. **Upload Media**: Select folder → Upload photos/videos via drag-and-drop
+6. **Share Access**: Copy folder link and password, share with members
+7. **Monitor Storage**: Check dashboard for storage usage warnings
+8. **Cleanup**: Delete old folders every 3 weeks to free storage
 
 ### For Members
 
@@ -168,6 +172,20 @@ Password: admin123
 
 ## 🎨 Features in Detail
 
+### User Management
+- Create new admin accounts with username, email, and password
+- View all admin users with sorting and pagination
+- Delete admin accounts (with self-deletion protection)
+- Track user activity with last login timestamps
+- Secure password hashing with bcrypt
+
+### Access Logs
+- Comprehensive audit trail for all system activities
+- Track admin logins, folder access, and administrative actions
+- Filter and sort logs by timestamp, action type, and user
+- IP address and user agent tracking
+- Pagination support for large log datasets
+
 ### Storage Management
 - Real-time storage calculation from actual file sizes
 - Warning notifications at 80% (yellow) and 95% (red)
@@ -186,6 +204,7 @@ Password: admin123
 - Storage usage visualization
 - Folder properties and metadata
 - Quick actions (edit, delete, share, open)
+- User management and access logs navigation
 - Mobile drawer sidebar for small screens
 
 ### Member Experience

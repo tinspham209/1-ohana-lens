@@ -127,11 +127,17 @@ export async function POST(request: Request) {
 │   ├── admin/                      # Admin dashboard pages
 │   │   ├── page.tsx               # Admin dashboard home
 │   │   ├── folders/               # Folder management
+│   │   ├── users/                 # User management
+│   │   ├── access-logs/           # Access logs viewer
 │   │   └── login/                 # Admin login
 │   ├── folder/                     # Member folder access
 │   │   └── [folderId]/page.tsx   # View folder media
 │   ├── api/                        # API routes
 │   │   ├── auth/                  # Authentication endpoints
+│   │   │   ├── admin-signup/      # Create new admin
+│   │   │   ├── admin-delete/      # Delete admin
+│   │   │   └── admin-list/        # List all admins
+│   │   ├── access-logs/           # Access logs endpoint
 │   │   ├── folders/               # Folder CRUD
 │   │   ├── media/                 # Media upload/delete
 │   │   ├── admin/                 # Admin-only endpoints
@@ -145,6 +151,9 @@ export async function POST(request: Request) {
 │   └── utils/                      # Helper functions
 ├── components/
 │   ├── admin/                      # Admin-specific components
+│   │   ├── UserManagementTable.tsx # Admin users table
+│   │   ├── UserFormDialog.tsx      # Create admin form
+│   │   └── DeleteUserDialog.tsx    # Delete admin dialog
 │   ├── folder/                     # Folder view components
 │   └── shared/                     # Reusable components
 ├── types/
@@ -154,6 +163,14 @@ export async function POST(request: Request) {
 │   └── migrations/                # Migration files
 └── public/                         # Static assets
 ```
+
+│ └── \*.types.ts # TypeScript type definitions
+├── prisma/
+│ ├── schema.prisma # Database schema
+│ └── migrations/ # Migration files
+└── public/ # Static assets
+
+````
 
 ## Database Schema Reference
 
@@ -179,28 +196,44 @@ export async function POST(request: Request) {
 - **Member Access:** Folder password → JWT with folder_id
 - Keep sessions separate (can't use admin token for folder access)
 
-### 2. Folder Management (Admin Only)
+### 2. Admin User Management (Admin Only)
+
+- Create new admin accounts with username, email, and password
+- List all admins with pagination and sorting
+- Delete admin accounts (with self-deletion protection)
+- Track last login timestamps
+- Secure password hashing with bcrypt
+
+### 3. Access Logs (Admin Only)
+
+- Track all admin and member activities
+- Log admin logins, folder access, and administrative actions
+- View logs with pagination, sorting, and filtering
+- Display IP address and user agent information
+- Link logs to admin users and folders
+
+### 4. Folder Management (Admin Only)
 
 - Create folder with auto-generated password
 - List all folders with size and metadata
 - Delete folder (triggers Cloudinary cleanup)
 - Update folder metadata
 
-### 3. Media Upload (Admin Only)
+### 5. Media Upload (Admin Only)
 
 - Upload to Cloudinary via REST API
 - Save URL and public_id to database
 - Support: JPG, PNG, GIF, MP4, MOV, WebM
 - Validate file size (max 100MB per file)
 
-### 4. Gallery View (Members + Admins)
+### 6. Gallery View (Members + Admins)
 
 - Responsive grid layout
 - Image preview with lightbox
 - Video player with controls
 - Download individual files
 
-### 5. Storage Management
+### 7. Storage Management
 
 - Real-time storage monitoring
 - Warning notifications at 80% and 95%
@@ -217,7 +250,7 @@ export async function POST(request: Request) {
 
 // Error
 { error: string, code: string, ok: false }
-```
+````
 
 ### Authentication Headers
 

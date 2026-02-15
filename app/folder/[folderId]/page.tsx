@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
 	Container,
@@ -19,6 +19,8 @@ import {
 import MediaGrid from "@/components/folder/MediaGrid";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DownloadIcon from "@mui/icons-material/Download";
+import ViewAgendaIcon from "@mui/icons-material/ViewAgenda";
+import ViewModuleIcon from "@mui/icons-material/ViewModule";
 import {
 	buildOptimizedUrl,
 	getDownloadUrl,
@@ -48,6 +50,34 @@ export default function FolderViewPage() {
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+	const fetchMedia = useCallback(
+		async (token: string) => {
+			try {
+				setMediaLoading(true);
+				setError(null);
+
+				const response = await fetch(`/api/folders/${folderId}/media`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				if (!response.ok) {
+					throw new Error("Failed to load media");
+				}
+
+				const data = await response.json();
+				setMedia(data.media || []);
+			} catch (err) {
+				console.error("Error loading media:", err);
+				setError(err instanceof Error ? err.message : "Failed to load media");
+			} finally {
+				setMediaLoading(false);
+			}
+		},
+		[folderId],
+	);
+
 	useEffect(() => {
 		// Check if user has access token
 		const token = localStorage.getItem("folderToken");
@@ -71,32 +101,7 @@ export default function FolderViewPage() {
 
 		// Fetch media
 		fetchMedia(token);
-	}, [router, folderId]);
-
-	const fetchMedia = async (token: string) => {
-		try {
-			setMediaLoading(true);
-			setError(null);
-
-			const response = await fetch(`/api/folders/${folderId}/media`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
-
-			if (!response.ok) {
-				throw new Error("Failed to load media");
-			}
-
-			const data = await response.json();
-			setMedia(data.media || []);
-		} catch (err) {
-			console.error("Error loading media:", err);
-			setError(err instanceof Error ? err.message : "Failed to load media");
-		} finally {
-			setMediaLoading(false);
-		}
-	};
+	}, [fetchMedia, router, folderId]);
 
 	const handleLogout = () => {
 		localStorage.removeItem("folderToken");
@@ -119,7 +124,7 @@ export default function FolderViewPage() {
 		}
 		if (item.mediaType === "video") {
 			return buildOptimizedUrl(item.cloudinaryUrl, {
-				quality: "auto",
+				quality: 100,
 				format: "auto",
 			});
 		}
@@ -259,14 +264,29 @@ export default function FolderViewPage() {
 								value={mobileColumns}
 								exclusive
 								onChange={handleMobileColumnsChange}
-								size="small"
 								aria-label="Mobile gallery layout"
 							>
-								<ToggleButton value={1} aria-label="1 column">
-									1
+								<ToggleButton
+									value={1}
+									aria-label="1 column"
+									sx={{
+										minWidth: 48,
+										minHeight: 48,
+										"& .MuiSvgIcon-root": { fontSize: 28 },
+									}}
+								>
+									<ViewAgendaIcon />
 								</ToggleButton>
-								<ToggleButton value={2} aria-label="2 columns">
-									2
+								<ToggleButton
+									value={2}
+									aria-label="2 columns"
+									sx={{
+										minWidth: 48,
+										minHeight: 48,
+										"& .MuiSvgIcon-root": { fontSize: 28 },
+									}}
+								>
+									<ViewModuleIcon />
 								</ToggleButton>
 							</ToggleButtonGroup>
 						</Box>

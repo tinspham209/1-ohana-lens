@@ -7,7 +7,7 @@ export interface CloudinaryOptimizationOptions {
 	width?: number;
 	height?: number;
 	quality?: number; // 1-100
-	format?: "webp" | "jpg" | "png"; // specific format
+	format?: "auto" | "webp" | "jpg" | "png"; // specific format
 	crop?: "fill" | "fit" | "thumb" | "crop";
 	gravity?: "face" | "center"; // face detection or center
 	removeBackground?: boolean;

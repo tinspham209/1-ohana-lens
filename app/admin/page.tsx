@@ -478,6 +478,22 @@ export default function AdminDashboard() {
 								Manage Folders
 							</Button>
 							<Button
+								variant="outlined"
+								href="/admin/users"
+								color="primary"
+								sx={{ borderRadius: 2, px: 2.5 }}
+							>
+								Manage Users
+							</Button>
+							<Button
+								variant="outlined"
+								href="/admin/access-logs"
+								color="primary"
+								sx={{ borderRadius: 2, px: 2.5 }}
+							>
+								View Access Logs
+							</Button>
+							<Button
 								LinkComponent={"a"}
 								variant="outlined"
 								href={process.env.NEXT_PUBLIC_CLOUDINARY_DASHBOARD_URL || ""}

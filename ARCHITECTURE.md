@@ -135,6 +135,8 @@ app/
 ├── admin/                      # Admin-only routes
 │   ├── page.tsx               # Dashboard
 │   ├── login/page.tsx         # Admin login
+│   ├── users/page.tsx         # User management
+│   ├── access-logs/page.tsx   # Access logs viewer
 │   └── folders/               # Folder management
 │       ├── page.tsx           # Folder list + explorer
 │       └── [folderId]/
@@ -162,6 +164,9 @@ app/api/
 ├── auth/                       # Authentication endpoints
 │   ├── admin-login/
 │   ├── admin-logout/
+│   ├── admin-signup/          # Create new admin (admin-only)
+│   ├── admin-delete/          # Delete admin (admin-only)
+│   ├── admin-list/            # List all admins (admin-only)
 │   ├── verify-password/       # Folder password check
 │   └── logout/
 ├── folders/                    # Folder CRUD
@@ -174,6 +179,8 @@ app/api/
 │   ├── upload/[folderId]/     # Upload to folder
 │   ├── [mediaId]/route.ts     # Delete single media
 │   └── limits/route.ts        # Get Cloudinary limits
+├── access-logs/                # Access logs (admin-only)
+│   └── route.ts               # List access logs with pagination
 └── admin/                      # Admin-only endpoints
     ├── storage-usage/
     └── folders-by-size/
@@ -854,9 +861,12 @@ export async function DELETE(
 components/
 ├── admin/                  # Admin-only components
 │   ├── DeleteFolderDialog.tsx
+│   ├── DeleteUserDialog.tsx       # Delete admin user confirmation
 │   ├── FolderExplorer.tsx
 │   ├── FolderFormDialog.tsx
-│   └── StorageWarning.tsx
+│   ├── StorageWarning.tsx
+│   ├── UserFormDialog.tsx         # Create admin user form
+│   └── UserManagementTable.tsx    # Admin users table with sorting
 ├── folder/                 # Folder view components
 │   ├── AdminMediaGrid.tsx # Media grid with delete
 │   ├── MediaGrid.tsx      # Read-only media grid
