@@ -76,11 +76,10 @@ export async function POST(request: NextRequest) {
 		const folderName = process.env.CLOUDINARY_FOLDER_NAME || "ohana-lens";
 		const folder = `${folderName}/folder-${folderId}`;
 
-		// Parameters to sign
+		// Parameters to sign (must match exactly what client sends to Cloudinary)
 		const params = {
 			timestamp,
 			folder,
-			upload_preset: "unsigned", // Optional: create an upload preset in Cloudinary
 		};
 
 		// Generate signature
