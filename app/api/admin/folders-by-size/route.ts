@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
 		});
 
 		// Format response
-		const formattedFolders = folders.map((folder) => ({
+		const formattedFolders = folders.map((folder: (typeof folders)[0]) => ({
 			id: folder.id,
 			name: folder.name,
 			sizeBytes: Number(folder.sizeInBytes),
