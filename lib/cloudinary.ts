@@ -38,11 +38,10 @@ export async function uploadToCloudinary(
 	const imageOptions = {
 		eager: [
 			// Pre-generate optimized delivery format at upload time
-			{ width: 1000, crop: "fit", quality: "auto", format: "auto" },
+			{ width: 1000, crop: "fit", quality: 80 },
 		],
-		flags: ["progressive", "immutable"],
-		format_on_save: true,
-		quality: "auto:eco",
+		flags: ["progressive"],
+		quality: 80,
 	};
 
 	const videoOptions = {

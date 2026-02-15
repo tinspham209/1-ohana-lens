@@ -6,10 +6,10 @@
 export interface CloudinaryOptimizationOptions {
 	width?: number;
 	height?: number;
-	quality?: "auto" | "eco" | number; // auto, eco (lowest quality), or 1-100
-	format?: "auto" | "webp" | "jpg" | "png"; // auto for best format
+	quality?: number; // 1-100
+	format?: "webp" | "jpg" | "png"; // specific format
 	crop?: "fill" | "fit" | "thumb" | "crop";
-	gravity?: "auto" | "face" | "center"; // auto detects faces
+	gravity?: "face" | "center"; // face detection or center
 	removeBackground?: boolean;
 	effect?: string;
 }
@@ -32,10 +32,10 @@ export function buildOptimizedUrl(
 	const {
 		width,
 		height,
-		quality = "auto",
-		format = "auto",
+		quality = 80,
+		format,
 		crop = "fill",
-		gravity = "auto",
+		gravity = "center",
 	} = options;
 
 	const transformations: string[] = [];
@@ -50,12 +50,10 @@ export function buildOptimizedUrl(
 		transformations.push(transform);
 	}
 
-	// Auto format and quality (massive credit saver)
+	// Quality and format optimization
 	let optimize = "";
-	if (format === "auto") optimize += "f_auto,";
-	if (quality === "auto") optimize += "q_auto,";
-	if (quality === "eco") optimize += "q_auto:eco,"; // Lowest quality (saves most credits)
-	if (typeof quality === "number") optimize += `q_${quality},`;
+	if (format) optimize += `f_${format},`;
+	if (quality) optimize += `q_${quality},`;
 	const optimizedTransform = optimize.replace(/,$/, "");
 	if (optimizedTransform) {
 		transformations.push(optimizedTransform);
@@ -81,8 +79,7 @@ export function getThumbnailUrl(url: string): string {
 		width: 400,
 		height: 400,
 		crop: "fill",
-		quality: "auto",
-		format: "auto",
+		quality: 70,
 	});
 }
 
@@ -97,8 +94,7 @@ export function getPreviewUrl(url: string): string {
 		width: 1000,
 		height: 1000,
 		crop: "fit",
-		quality: "auto",
-		format: "auto",
+		quality: 80,
 	});
 }
 
@@ -124,8 +120,7 @@ export function getResponsiveSrcSet(url: string): string {
 			const optimizedUrl = buildOptimizedUrl(url, {
 				width: size.width,
 				crop: "fit",
-				quality: "auto",
-				format: "auto",
+				quality: 80,
 			});
 			return `${optimizedUrl} ${size.descriptor}`;
 		})
@@ -142,7 +137,7 @@ export function getVideoPosterUrl(url: string): string {
 	if (!url || !url.includes("cloudinary.com")) return url;
 
 	// Extract a poster frame from the start of the video and force image output
-	const posterTransform = "so_0,w_400,h_400,c_fill,q_auto:eco,f_jpg";
+	const posterTransform = "so_0,w_400,h_400,c_fill,q_60,f_jpg";
 	return url.replace("/upload/", `/upload/${posterTransform}/`);
 }
 
@@ -155,6 +150,5 @@ export function getVideoPosterUrl(url: string): string {
 export function getDownloadUrl(url: string): string {
 	return buildOptimizedUrl(url, {
 		quality: 95, // High quality for downloads
-		format: "auto",
 	});
 }
