@@ -1,81 +1,81 @@
--- CreateTable AdminUser
-CREATE TABLE "AdminUser" (
+-- CreateTable admin_users
+CREATE TABLE "admin_users" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "username" TEXT NOT NULL UNIQUE,
     "password_hash" TEXT NOT NULL,
     "email" TEXT NOT NULL UNIQUE,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "is_active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "last_login" DATETIME
 );
 
--- CreateTable Folder
-CREATE TABLE "Folder" (
+-- CreateTable folders
+CREATE TABLE "folders" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "name" TEXT NOT NULL,
     "description" TEXT,
-    "folderKey" TEXT NOT NULL UNIQUE,
+    "folder_key" TEXT NOT NULL UNIQUE,
     "password_hash" TEXT NOT NULL,
-    "sizeInBytes" BIGINT NOT NULL DEFAULT 0,
+    "size_in_bytes" BIGINT NOT NULL DEFAULT 0,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- CreateTable Media
-CREATE TABLE "Media" (
+-- CreateTable media
+CREATE TABLE "media" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "folderId" TEXT NOT NULL,
-    "fileName" TEXT NOT NULL,
-    "cloudinaryUrl" TEXT NOT NULL,
-    "cloudinaryPublicId" TEXT NOT NULL,
-    "mediaType" TEXT NOT NULL,
-    "fileSize" BIGINT NOT NULL,
-    "mimeType" TEXT NOT NULL,
-    "uploadedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Media_folderId_fkey" FOREIGN KEY ("folderId") REFERENCES "Folder" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "folder_id" TEXT NOT NULL,
+    "file_name" TEXT NOT NULL,
+    "cloudinary_url" TEXT NOT NULL,
+    "cloudinary_public_id" TEXT NOT NULL,
+    "media_type" TEXT NOT NULL,
+    "file_size" BIGINT NOT NULL,
+    "mime_type" TEXT NOT NULL,
+    "uploaded_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "media_folder_id_fkey" FOREIGN KEY ("folder_id") REFERENCES "folders" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable Session
-CREATE TABLE "Session" (
+-- CreateTable sessions
+CREATE TABLE "sessions" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "adminId" TEXT NOT NULL,
-    "tokenHash" TEXT NOT NULL,
-    "expiresAt" DATETIME NOT NULL,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "Session_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "AdminUser" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+    "admin_id" TEXT NOT NULL,
+    "token_hash" TEXT NOT NULL,
+    "expires_at" DATETIME NOT NULL,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "sessions_admin_id_fkey" FOREIGN KEY ("admin_id") REFERENCES "admin_users" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
--- CreateTable AccessLog
-CREATE TABLE "AccessLog" (
+-- CreateTable access_logs
+CREATE TABLE "access_logs" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "adminId" TEXT,
-    "folderId" TEXT,
+    "admin_id" TEXT,
+    "folder_id" TEXT,
     "action" TEXT NOT NULL,
-    "ipAddress" TEXT,
-    "userAgent" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "AccessLog_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "AdminUser" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
-    CONSTRAINT "AccessLog_folderId_fkey" FOREIGN KEY ("folderId") REFERENCES "Folder" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+    "ip_address" TEXT,
+    "user_agent" TEXT,
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "access_logs_admin_id_fkey" FOREIGN KEY ("admin_id") REFERENCES "admin_users" ("id") ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT "access_logs_folder_id_fkey" FOREIGN KEY ("folder_id") REFERENCES "folders" ("id") ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AdminUser_username_key" on "AdminUser"("username");
+CREATE UNIQUE INDEX "admin_users_username_key" on "admin_users"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AdminUser_email_key" on "AdminUser"("email");
+CREATE UNIQUE INDEX "admin_users_email_key" on "admin_users"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Folder_folderKey_key" on "Folder"("folderKey");
+CREATE UNIQUE INDEX "folders_folder_key_key" on "folders"("folder_key");
 
 -- CreateIndex
-CREATE INDEX "Media_folderId_idx" on "Media"("folderId");
+CREATE INDEX "media_folder_id_idx" on "media"("folder_id");
 
 -- CreateIndex
-CREATE INDEX "Session_adminId_idx" on "Session"("adminId");
+CREATE INDEX "sessions_admin_id_idx" on "sessions"("admin_id");
 
 -- CreateIndex
-CREATE INDEX "AccessLog_adminId_idx" on "AccessLog"("adminId");
+CREATE INDEX "access_logs_admin_id_idx" on "access_logs"("admin_id");
 
 -- CreateIndex
-CREATE INDEX "AccessLog_folderId_idx" on "AccessLog"("folderId");
+CREATE INDEX "access_logs_folder_id_idx" on "access_logs"("folder_id");
